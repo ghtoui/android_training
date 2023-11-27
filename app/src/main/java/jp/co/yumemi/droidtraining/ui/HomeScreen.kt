@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -16,20 +15,30 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import jp.co.yumemi.api.YumemiWeather
 import jp.co.yumemi.droidtraining.R
 
 @Composable
 fun HomeScreen() {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    val context = LocalContext.current
+    val yumemiWeather = YumemiWeather(context = context)
+    var weatherData by remember { mutableStateOf(yumemiWeather.fetchSimpleWeather()) }
+
     Box(
         contentAlignment = Alignment.Center
         ) {
@@ -40,18 +49,28 @@ fun HomeScreen() {
             verticalArrangement = Arrangement.Center
         ) {
             Spacer(modifier = Modifier.weight(1f))
-            WeatherInfo()
-            ReloadButton(modifier = Modifier.weight(1f))
+            WeatherInfo(weather = weatherData)
+            ActionButtons(
+                reloadClick = { weatherData = yumemiWeather.fetchSimpleWeather() },
+                nextClick = { },
+                modifier = Modifier.weight(1f)
+            )
         }
     }
 }
 
 @Composable
-fun WeatherInfo() {
+fun WeatherInfo(weather: String) {
+    val imageId = when (weather) {
+        "sunny" -> painterResource(id = R.drawable.sunny)
+        "cloudy" -> painterResource(id = R.drawable.cloudy)
+        "rainy" -> painterResource(id = R.drawable.rainy)
+        else -> painterResource(id = R.drawable.snow)
+    }
     Column {
         Image(
-            painter = painterResource(id = R.drawable.ic_launcher_background),
-            contentDescription = null,
+            painter = imageId,
+            contentDescription = weather,
             modifier = Modifier
                 .aspectRatio(1f / 1f)
         )
@@ -76,7 +95,11 @@ fun WeatherInfo() {
 }
 
 @Composable
-fun ReloadButton(modifier: Modifier) {
+fun ActionButtons(
+    reloadClick: () -> Unit,
+    nextClick: () -> Unit,
+    modifier: Modifier
+) {
     Row(
         modifier = modifier
             .padding(top = 80.dp)
@@ -85,7 +108,7 @@ fun ReloadButton(modifier: Modifier) {
         verticalAlignment = Alignment.Top
         ) {
         Button(
-            onClick = {},
+            onClick = reloadClick,
             colors = ButtonDefaults.textButtonColors(
                 contentColor = Color.Black,
                 disabledContentColor = Color.LightGray
@@ -101,7 +124,7 @@ fun ReloadButton(modifier: Modifier) {
         }
 
         Button(
-            onClick = {},
+            onClick = nextClick,
             colors = ButtonDefaults.textButtonColors(
                 contentColor = Color.Black,
                 disabledContentColor = Color.LightGray
@@ -130,7 +153,7 @@ fun HomeScreenPreview() {
 @Preview
 fun WeatherInfoPreview() {
     Box(Modifier.background(Color.White)) {
-        WeatherInfo()
+        WeatherInfo("sunny")
     }
 }
 
@@ -138,6 +161,10 @@ fun WeatherInfoPreview() {
 @Preview
 fun ReloadButtonPreview() {
     Box(Modifier.background(Color.White)) {
-        ReloadButton(modifier = Modifier)
+        ActionButtons(
+            reloadClick = { },
+            nextClick = { },
+            modifier = Modifier
+            )
     }
 }
