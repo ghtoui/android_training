@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -40,8 +41,9 @@ fun HomeScreen() {
     var weatherData by remember { mutableStateOf(yumemiWeather.fetchSimpleWeather()) }
 
     Box(
+        modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
-        ) {
+    ) {
         Column(
             modifier = Modifier
                 .width(screenWidth / 2),
@@ -106,7 +108,7 @@ fun ActionButtons(
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.Top
-        ) {
+    ) {
         Button(
             onClick = reloadClick,
             colors = ButtonDefaults.textButtonColors(
@@ -165,6 +167,6 @@ fun ReloadButtonPreview() {
             reloadClick = { },
             nextClick = { },
             modifier = Modifier
-            )
+        )
     }
 }
