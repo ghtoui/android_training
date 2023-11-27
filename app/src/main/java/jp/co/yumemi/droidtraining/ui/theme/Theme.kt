@@ -2,8 +2,8 @@ package jp.co.yumemi.droidtraining.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import com.example.compose.md_theme_dark_background
 import com.example.compose.md_theme_dark_error
@@ -64,7 +64,6 @@ import com.example.compose.md_theme_light_surfaceVariant
 import com.example.compose.md_theme_light_tertiary
 import com.example.compose.md_theme_light_tertiaryContainer
 
-
 private val LightColors = lightColorScheme(
     primary = md_theme_light_primary,
     onPrimary = md_theme_light_onPrimary,
@@ -96,7 +95,6 @@ private val LightColors = lightColorScheme(
     outlineVariant = md_theme_light_outlineVariant,
     scrim = md_theme_light_scrim,
 )
-
 
 private val DarkColors = darkColorScheme(
     primary = md_theme_dark_primary,
