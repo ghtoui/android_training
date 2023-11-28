@@ -199,10 +199,7 @@ fun HomeScreenPreview() {
 @Composable
 @Preview(showBackground = true)
 fun DialogPreview() {
-    Box(
-        Modifier
-            .fillMaxSize()
-            .background(Color.White)) {
+    Box(Modifier.fillMaxSize().background(Color.White)) {
         ShowErrorDialog(
             isShow = true,
             cancelClick = { /*TODO*/ },

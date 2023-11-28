@@ -28,7 +28,7 @@ class HomeScreenViewModel(
     }
 
     fun closeDialog() {
-        _weatherState.update { 
+        _weatherState.update {
             it.copy(
                 showErrorDialog = false
             )
