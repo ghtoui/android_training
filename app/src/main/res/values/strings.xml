@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">droidtraining</string>
+    <string name="sunny">sunny</string>
+    <string name="cloudy">cloudy</string>
+    <string name="rainy">rainy</string>
+    <string name="snow">snow</string>
 </resources>
