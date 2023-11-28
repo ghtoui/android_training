@@ -12,9 +12,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,19 +27,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import jp.co.yumemi.api.UnknownException
 import jp.co.yumemi.api.YumemiWeather
 import jp.co.yumemi.droidtraining.R
+import jp.co.yumemi.droidtraining.model.WeatherState
 
 @Composable
 fun HomeScreen() {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val context = LocalContext.current
-    val yumemiWeather = YumemiWeather(context = context)
-    var weatherData by remember { mutableStateOf(yumemiWeather.fetchSimpleWeather()) }
+    val yumemiWeather by remember { mutableStateOf(YumemiWeather(context = context)) }
+    var weatherData by remember { mutableStateOf(fetchMethod(yumemiWeather)) }
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -53,26 +57,41 @@ fun HomeScreen() {
             Spacer(modifier = Modifier.weight(1f))
             WeatherInfo(weather = weatherData)
             ActionButtons(
-                reloadClick = { weatherData = yumemiWeather.fetchSimpleWeather() },
+                reloadClick = { weatherData = fetchMethod(yumemiWeather) },
                 nextClick = { },
                 modifier = Modifier.weight(1f)
             )
         }
     }
+    ShowErrorDialog(
+        isShow = weatherData.showErrorDialog,
+        cancelClick = { weatherData = WeatherState(weatherData.weatherSuccess, false) },
+        reloadClick = { weatherData = fetchMethod(yumemiWeather) }
+    )
+}
+
+// api取得して、返り値に合わせて処理
+private fun fetchMethod(yumemiWeather: YumemiWeather): WeatherState {
+    return try {
+        WeatherState(yumemiWeather.fetchThrowsWeather(), false)
+    } catch (error: UnknownException) {
+        WeatherState(null, true)
+    }
 }
 
 @Composable
-fun WeatherInfo(weather: String) {
-    val imageId = when (weather) {
-        "sunny" -> painterResource(id = R.drawable.sunny)
-        "cloudy" -> painterResource(id = R.drawable.cloudy)
-        "rainy" -> painterResource(id = R.drawable.rainy)
-        else -> painterResource(id = R.drawable.snow)
+fun WeatherInfo(weather: WeatherState) {
+    val imageId = when (weather.weatherSuccess) {
+        stringResource(id = R.string.sunny) -> painterResource(id = R.drawable.sunny)
+        stringResource(id = R.string.cloudy) -> painterResource(id = R.drawable.cloudy)
+        stringResource(id = R.string.rainy) -> painterResource(id = R.drawable.rainy)
+        stringResource(id = R.string.snow) -> painterResource(id = R.drawable.snow)
+        else -> painterResource(id = R.drawable.ic_launcher_foreground)
     }
     Column {
         Image(
             painter = imageId,
-            contentDescription = weather,
+            contentDescription = weather.weatherSuccess,
             modifier = Modifier
                 .aspectRatio(1f / 1f)
         )
@@ -109,8 +128,8 @@ fun ActionButtons(
         horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.Top
     ) {
-        Button(
-            onClick = reloadClick,
+        TextButton(
+            onClick = { reloadClick() },
             colors = ButtonDefaults.textButtonColors(
                 contentColor = Color.Black,
                 disabledContentColor = Color.LightGray
@@ -125,8 +144,8 @@ fun ActionButtons(
             )
         }
 
-        Button(
-            onClick = nextClick,
+        TextButton(
+            onClick = { nextClick() },
             colors = ButtonDefaults.textButtonColors(
                 contentColor = Color.Black,
                 disabledContentColor = Color.LightGray
@@ -144,7 +163,36 @@ fun ActionButtons(
 }
 
 @Composable
-@Preview
+fun ShowErrorDialog(
+    isShow: Boolean,
+    cancelClick: () -> Unit,
+    reloadClick: () -> Unit
+) {
+    if (isShow) {
+        AlertDialog(
+            title = {
+                Text("Error")
+            },
+            text = {
+                Text("エラーが発生しました")
+            },
+            onDismissRequest = { },
+            confirmButton = {
+                TextButton(onClick = { reloadClick() }) {
+                    Text("reload")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { cancelClick() }) {
+                    Text("cancel")
+                }
+            }
+        )
+    }
+}
+
+@Composable
+@Preview(showBackground = true)
 fun HomeScreenPreview() {
     Box(Modifier.background(Color.White)) {
         HomeScreen()
@@ -152,15 +200,22 @@ fun HomeScreenPreview() {
 }
 
 @Composable
-@Preview
-fun WeatherInfoPreview() {
-    Box(Modifier.background(Color.White)) {
-        WeatherInfo("sunny")
+@Preview(showBackground = true)
+fun DialogPreview() {
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(Color.White)) {
+        ShowErrorDialog(
+            isShow = true,
+            cancelClick = { /*TODO*/ },
+            reloadClick = { /*TODO*/ }
+        )
     }
 }
 
 @Composable
-@Preview
+@Preview(showBackground = true)
 fun ReloadButtonPreview() {
     Box(Modifier.background(Color.White)) {
         ActionButtons(
