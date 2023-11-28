@@ -1,5 +1,6 @@
 package jp.co.yumemi.droidtraining.ui
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,10 +18,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,17 +30,22 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import jp.co.yumemi.api.UnknownException
+import androidx.lifecycle.viewmodel.compose.viewModel
 import jp.co.yumemi.api.YumemiWeather
 import jp.co.yumemi.droidtraining.R
+import jp.co.yumemi.droidtraining.model.HomeScreenViewModel
 import jp.co.yumemi.droidtraining.model.WeatherState
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    yumemiWeather: YumemiWeather = YumemiWeather(LocalContext.current),
+    viewModel: HomeScreenViewModel = viewModel {
+        HomeScreenViewModel(yumemiWeather)
+    }
+) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-    val context = LocalContext.current
-    val yumemiWeather by remember { mutableStateOf(YumemiWeather(context = context)) }
-    var weatherData by remember { mutableStateOf(fetchMethod(yumemiWeather)) }
+    val uiState = viewModel.weatherState.collectAsState()
+    Log.d("test", uiState.toString())
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -55,28 +58,22 @@ fun HomeScreen() {
             verticalArrangement = Arrangement.Center
         ) {
             Spacer(modifier = Modifier.weight(1f))
-            WeatherInfo(weather = weatherData)
+            WeatherInfo(weather = uiState.value)
             ActionButtons(
-                reloadClick = { weatherData = fetchMethod(yumemiWeather) },
+                reloadClick = viewModel::reloadData,
                 nextClick = { },
                 modifier = Modifier.weight(1f)
             )
         }
     }
     ShowErrorDialog(
-        isShow = weatherData.showErrorDialog,
-        cancelClick = { weatherData = WeatherState(weatherData.weatherSuccess, false) },
-        reloadClick = { weatherData = fetchMethod(yumemiWeather) }
+        isShow = uiState.value.showErrorDialog,
+        cancelClick = viewModel::closeDialog,
+        reloadClick = {
+            viewModel.closeDialog()
+            viewModel.reloadData()
+        }
     )
-}
-
-// api取得して、返り値に合わせて処理
-private fun fetchMethod(yumemiWeather: YumemiWeather): WeatherState {
-    return try {
-        WeatherState(yumemiWeather.fetchThrowsWeather(), false)
-    } catch (error: UnknownException) {
-        WeatherState(null, true)
-    }
 }
 
 @Composable
