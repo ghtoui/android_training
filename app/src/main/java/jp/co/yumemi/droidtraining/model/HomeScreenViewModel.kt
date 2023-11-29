@@ -9,6 +9,7 @@ import androidx.lifecycle.viewmodel.compose.saveable
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.co.yumemi.api.UnknownException
 import jp.co.yumemi.api.YumemiWeather
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,9 +27,9 @@ class HomeScreenViewModel @Inject constructor(
     }
         private set
 
-    private fun fetchApi(): WeatherState {
+    private suspend fun fetchApi(): WeatherState {
         return try {
-            WeatherState(yumemiWeather.fetchThrowsWeather(), false)
+            WeatherState(yumemiWeather.fetchWeatherAsync(), false)
         } catch (error: UnknownException) {
             WeatherState(null, true)
         }
@@ -37,16 +38,27 @@ class HomeScreenViewModel @Inject constructor(
     fun closeDialog() {
         weatherState = WeatherState(
             weatherSuccess = weatherState.weatherSuccess,
-            showErrorDialog = false
+            showErrorDialog = false,
+            isLoading = false
         )
     }
 
     fun reloadData() {
-        viewModelScope.launch {
+        // 連打すると何回も実行されるので、trueの時は無視する
+        if (weatherState.isLoading) {
+            return
+        }
+        weatherState = WeatherState(
+            weatherSuccess = weatherState.weatherSuccess,
+            showErrorDialog = weatherState.showErrorDialog,
+            isLoading = true
+        )
+        viewModelScope.launch(Dispatchers.Default) {
             val state = fetchApi()
             weatherState = WeatherState(
                 weatherSuccess = state.weatherSuccess,
-                showErrorDialog = state.showErrorDialog
+                showErrorDialog = state.showErrorDialog,
+                isLoading = false
             )
         }
     }

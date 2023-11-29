@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -65,6 +66,9 @@ fun HomeScreen(
             viewModel.closeDialog()
             viewModel.reloadData()
         }
+    )
+    Loading(
+        isLoading = uiState.isLoading
     )
 }
 
@@ -181,6 +185,20 @@ fun ShowErrorDialog(
 }
 
 @Composable
+fun Loading(
+    isLoading: Boolean
+) {
+    if (isLoading) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator( )
+        }
+    }
+}
+
+@Composable
 @Preview(showBackground = true)
 fun HomeScreenPreview() {
     Box(Modifier.background(Color.White)) {
@@ -191,7 +209,10 @@ fun HomeScreenPreview() {
 @Composable
 @Preview(showBackground = true)
 fun DialogPreview() {
-    Box(Modifier.fillMaxSize().background(Color.White)) {
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(Color.White)) {
         ShowErrorDialog(
             isShow = true,
             cancelClick = { /*TODO*/ },
@@ -202,12 +223,6 @@ fun DialogPreview() {
 
 @Composable
 @Preview(showBackground = true)
-fun ReloadButtonPreview() {
-    Box(Modifier.background(Color.White)) {
-        ActionButtons(
-            reloadClick = { },
-            nextClick = { },
-            modifier = Modifier
-        )
-    }
+fun LoadingPreview() {
+    Loading(isLoading = true)
 }
