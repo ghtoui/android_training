@@ -29,6 +29,10 @@ tasks.register<Delete>("clean") {
     delete(rootProject.buildDir)
 }
 
+plugins {
+    id("com.google.dagger.hilt.android") version "2.48" apply false
+}
+
 subprojects {
     // Gradle Plugin for ktlint
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
