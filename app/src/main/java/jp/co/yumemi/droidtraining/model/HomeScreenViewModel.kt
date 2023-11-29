@@ -1,23 +1,30 @@
 package jp.co.yumemi.droidtraining.model
 
-import android.util.Log
+import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi
+import androidx.lifecycle.viewmodel.compose.saveable
+import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.co.yumemi.api.UnknownException
 import jp.co.yumemi.api.YumemiWeather
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class HomeScreenViewModel(
+@OptIn(SavedStateHandleSaveableApi::class)
+@HiltViewModel
+class HomeScreenViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val yumemiWeather: YumemiWeather
 ) : ViewModel() {
-    private val _weatherState = MutableStateFlow(WeatherState(null, false))
-    val weatherState: StateFlow<WeatherState> = _weatherState.asStateFlow()
-
-    init {
-        reloadData()
+    // stateHandleにあるなら、そこから持ってくる。なければ、新しく作る。
+    // これだけで生成から保存までの処理を勝手にしてくれるようになる
+    // 保持できる型は決まりがあるので、それを守る必要がある
+    var weatherState by savedStateHandle.saveable {
+        mutableStateOf(WeatherState())
     }
+        private set
 
     private fun fetchApi(): WeatherState {
         return try {
@@ -28,18 +35,16 @@ class HomeScreenViewModel(
     }
 
     fun closeDialog() {
-        _weatherState.update {
-            it.copy(
-                showErrorDialog = false
-            )
-        }
+        weatherState = WeatherState(
+            weatherSuccess = weatherState.weatherSuccess,
+            showErrorDialog = false
+        )
     }
 
     fun reloadData() {
-        val state = fetchApi()
-        Log.d("test", state.toString())
-        _weatherState.update {
-            it.copy(
+        viewModelScope.launch {
+            val state = fetchApi()
+            weatherState = WeatherState(
                 weatherSuccess = state.weatherSuccess,
                 showErrorDialog = state.showErrorDialog
             )

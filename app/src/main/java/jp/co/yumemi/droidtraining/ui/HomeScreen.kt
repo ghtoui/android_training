@@ -1,6 +1,5 @@
 package jp.co.yumemi.droidtraining.ui
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,12 +17,10 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -31,21 +28,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import jp.co.yumemi.api.YumemiWeather
 import jp.co.yumemi.droidtraining.R
 import jp.co.yumemi.droidtraining.model.HomeScreenViewModel
 import jp.co.yumemi.droidtraining.model.WeatherState
 
 @Composable
 fun HomeScreen(
-    yumemiWeather: YumemiWeather = YumemiWeather(LocalContext.current),
-    viewModel: HomeScreenViewModel = viewModel {
-        HomeScreenViewModel(yumemiWeather)
-    }
+    viewModel: HomeScreenViewModel = viewModel()
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-    val uiState = viewModel.weatherState.collectAsState()
-    Log.d("test", uiState.toString())
+    val uiState = viewModel.weatherState
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -58,7 +50,7 @@ fun HomeScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Spacer(modifier = Modifier.weight(1f))
-            WeatherInfo(weather = uiState.value)
+            WeatherInfo(weather = uiState)
             ActionButtons(
                 reloadClick = viewModel::reloadData,
                 nextClick = { },
@@ -67,7 +59,7 @@ fun HomeScreen(
         }
     }
     ShowErrorDialog(
-        isShow = uiState.value.showErrorDialog,
+        isShow = uiState.showErrorDialog,
         cancelClick = viewModel::closeDialog,
         reloadClick = {
             viewModel.closeDialog()
