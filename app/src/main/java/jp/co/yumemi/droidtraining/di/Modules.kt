@@ -7,7 +7,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import jp.co.yumemi.api.YumemiWeather
-import jp.co.yumemi.droidtraining.model.WeatherInfoDataSource
+import jp.co.yumemi.droidtraining.datasources.WeatherInfoDataSource
 import jp.co.yumemi.droidtraining.repository.WeatherInfoRepository
 import jp.co.yumemi.droidtraining.repository.WeatherInfoRepositoryImpl
 import jp.co.yumemi.droidtraining.usecases.GetWeatherUseCase

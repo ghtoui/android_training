@@ -1,7 +1,8 @@
-package jp.co.yumemi.droidtraining.model
+package jp.co.yumemi.droidtraining.datasources
 
 import jp.co.yumemi.api.UnknownException
 import jp.co.yumemi.api.YumemiWeather
+import jp.co.yumemi.droidtraining.model.WeatherState
 import javax.inject.Inject
 
 class WeatherInfoDataSource @Inject constructor(

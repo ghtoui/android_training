@@ -31,8 +31,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import jp.co.yumemi.droidtraining.R
-import jp.co.yumemi.droidtraining.model.HomeScreenViewModel
 import jp.co.yumemi.droidtraining.model.WeatherState
+import jp.co.yumemi.droidtraining.viewmodels.HomeScreenViewModel
 
 @Composable
 fun HomeScreen(
