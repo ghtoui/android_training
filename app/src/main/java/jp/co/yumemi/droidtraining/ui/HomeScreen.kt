@@ -18,6 +18,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,7 +39,9 @@ fun HomeScreen(
     viewModel: HomeScreenViewModel = viewModel()
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-    val uiState = viewModel.weatherState
+    val uiState = viewModel.weatherState.collectAsState()
+    val isShowErrorDialog = viewModel.isShowErrorDialog.collectAsState()
+    val isLoading = viewModel.isLoading.collectAsState()
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -51,7 +54,7 @@ fun HomeScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Spacer(modifier = Modifier.weight(1f))
-            WeatherInfo(weather = uiState)
+            WeatherInfo(weather = uiState.value)
             ActionButtons(
                 reloadClick = viewModel::reloadData,
                 nextClick = { },
@@ -60,7 +63,7 @@ fun HomeScreen(
         }
     }
     ShowErrorDialog(
-        isShow = uiState.showErrorDialog,
+        isShow = isShowErrorDialog.value,
         cancelClick = viewModel::closeDialog,
         reloadClick = {
             viewModel.closeDialog()
@@ -68,7 +71,7 @@ fun HomeScreen(
         }
     )
     Loading(
-        isLoading = uiState.isLoading
+        isLoading = isLoading.value
     )
 }
 

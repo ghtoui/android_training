@@ -1,65 +1,40 @@
 package jp.co.yumemi.droidtraining.model
 
-import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi
-import androidx.lifecycle.viewmodel.compose.saveable
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jp.co.yumemi.api.UnknownException
-import jp.co.yumemi.api.YumemiWeather
+import jp.co.yumemi.droidtraining.repository.WeatherInfoRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@OptIn(SavedStateHandleSaveableApi::class)
 @HiltViewModel
 class HomeScreenViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
-    private val yumemiWeather: YumemiWeather
+    private val weatherInfoRepository: WeatherInfoRepository
 ) : ViewModel() {
-    // stateHandleにあるなら、そこから持ってくる。なければ、新しく作る。
-    // これだけで生成から保存までの処理を勝手にしてくれるようになる
-    // 保持できる型は決まりがあるので、それを守る必要がある
-    var weatherState by savedStateHandle.saveable {
-        mutableStateOf(WeatherState())
-    }
-        private set
+    var weatherState = weatherInfoRepository.weatherState
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    private suspend fun fetchApi(): WeatherState {
-        return try {
-            WeatherState(yumemiWeather.fetchWeatherAsync(), false)
-        } catch (error: UnknownException) {
-            WeatherState(null, true)
-        }
-    }
+    private val _isShowErrorDialog = MutableStateFlow(false)
+    val isShowErrorDialog: StateFlow<Boolean> = _isShowErrorDialog.asStateFlow()
 
     fun closeDialog() {
-        weatherState = WeatherState(
-            weatherSuccess = weatherState.weatherSuccess,
-            showErrorDialog = false,
-            isLoading = false
-        )
+        _isShowErrorDialog.value = false
     }
 
     fun reloadData() {
         // 連打すると何回も実行されるので、trueの時は無視する
-        if (weatherState.isLoading) {
+        if (_isLoading.value) {
             return
         }
-        weatherState = WeatherState(
-            weatherSuccess = weatherState.weatherSuccess,
-            showErrorDialog = weatherState.showErrorDialog,
-            isLoading = true
-        )
+        _isLoading.value = true
         viewModelScope.launch(Dispatchers.Default) {
-            val state = fetchApi()
-            weatherState = WeatherState(
-                weatherSuccess = state.weatherSuccess,
-                showErrorDialog = state.showErrorDialog,
-                isLoading = false
-            )
+            weatherInfoRepository.fetchWeatherApi(onError = { _isShowErrorDialog.value = true })
+            _isLoading.value = false
         }
     }
 }
