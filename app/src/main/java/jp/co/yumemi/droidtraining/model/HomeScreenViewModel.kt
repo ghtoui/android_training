@@ -3,7 +3,8 @@ package jp.co.yumemi.droidtraining.model
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jp.co.yumemi.droidtraining.repository.WeatherInfoRepository
+import jp.co.yumemi.droidtraining.usecases.GetWeatherUseCase
+import jp.co.yumemi.droidtraining.usecases.ReloadWeatherUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,9 +14,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeScreenViewModel @Inject constructor(
-    private val weatherInfoRepository: WeatherInfoRepository
+    getWeatherUseCase: GetWeatherUseCase,
+    private val reloadWeatherUseCase: ReloadWeatherUseCase
 ) : ViewModel() {
-    var weatherState = weatherInfoRepository.weatherState
+    var weatherState = getWeatherUseCase()
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
@@ -33,7 +35,7 @@ class HomeScreenViewModel @Inject constructor(
         }
         _isLoading.value = true
         viewModelScope.launch(Dispatchers.Default) {
-            weatherInfoRepository.fetchWeatherApi(onError = { _isShowErrorDialog.value = true })
+            reloadWeatherUseCase(onError = { _isShowErrorDialog.value = true })
             _isLoading.value = false
         }
     }

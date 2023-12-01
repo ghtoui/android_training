@@ -10,6 +10,8 @@ import jp.co.yumemi.api.YumemiWeather
 import jp.co.yumemi.droidtraining.model.WeatherInfoDataSource
 import jp.co.yumemi.droidtraining.repository.WeatherInfoRepository
 import jp.co.yumemi.droidtraining.repository.WeatherInfoRepositoryImpl
+import jp.co.yumemi.droidtraining.usecases.GetWeatherUseCase
+import jp.co.yumemi.droidtraining.usecases.ReloadWeatherUseCase
 import javax.inject.Singleton
 
 @Module
@@ -31,5 +33,17 @@ object Modules {
     @Singleton
     fun provideWeatherInfoRepository(weatherInfoDataSource: WeatherInfoDataSource): WeatherInfoRepository {
         return WeatherInfoRepositoryImpl(weatherInfoDataSource)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetWeatherUseCase(weatherInfoRepository: WeatherInfoRepository): GetWeatherUseCase {
+        return GetWeatherUseCase(weatherInfoRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideReloadWeatherUseCase(weatherInfoRepository: WeatherInfoRepository): ReloadWeatherUseCase {
+        return ReloadWeatherUseCase(weatherInfoRepository)
     }
 }
