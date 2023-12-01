@@ -9,17 +9,23 @@ import javax.inject.Inject
 
 interface WeatherInfoRepository {
     val weatherInfoState: StateFlow<WeatherInfoState>
-    suspend fun fetchWeatherApi(onError: () -> Unit)
+    suspend fun fetchWeatherApi(jsonRequest: String, onError: () -> Unit)
 }
 
 class WeatherInfoRepositoryImpl @Inject constructor(
     private val weatherInfoDataSource: WeatherInfoDataSource
 ) : WeatherInfoRepository {
-    private val _weatherInfoState = MutableStateFlow(WeatherInfoState())
+    private val _weatherInfoState: MutableStateFlow<WeatherInfoState> = MutableStateFlow(WeatherInfoState(
+        weather = "",
+        area = "",
+        date = "",
+        minTemp = 0,
+        maxTemp = 0
+    ))
     override val weatherInfoState = _weatherInfoState.asStateFlow()
 
-    override suspend fun fetchWeatherApi(onError: () -> Unit) {
-        val updateWeatherState = weatherInfoDataSource.fetchWeatherApi(onError = onError)
+    override suspend fun fetchWeatherApi(jsonRequest: String, onError: () -> Unit) {
+        val updateWeatherState = weatherInfoDataSource.fetchWeatherApi(jsonRequest, onError = onError)
         if (updateWeatherState != null) {
             _weatherInfoState.value = updateWeatherState
         }

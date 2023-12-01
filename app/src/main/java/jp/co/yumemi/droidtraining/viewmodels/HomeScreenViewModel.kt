@@ -3,6 +3,7 @@ package jp.co.yumemi.droidtraining.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import jp.co.yumemi.droidtraining.model.WeatherInfoState
 import jp.co.yumemi.droidtraining.usecases.GetWeatherUseCase
 import jp.co.yumemi.droidtraining.usecases.ReloadWeatherUseCase
 import kotlinx.coroutines.Dispatchers
@@ -10,6 +11,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,8 +37,17 @@ class HomeScreenViewModel @Inject constructor(
             return
         }
         _isLoading.value = true
+        val request = WeatherInfoState(
+            area = "東京",
+            date = "2020-04-01T12:00",
+            minTemp = 0,
+            maxTemp = 0,
+            weather = "sunny"
+        )
+        val jsonRequest = Json.encodeToString(request)
+
         viewModelScope.launch(Dispatchers.Default) {
-            reloadWeatherUseCase(onError = { _isShowErrorDialog.value = true })
+            reloadWeatherUseCase(jsonRequest, onError = { _isShowErrorDialog.value = true })
             _isLoading.value = false
         }
     }

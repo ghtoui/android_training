@@ -54,7 +54,7 @@ fun HomeScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Spacer(modifier = Modifier.weight(1f))
-            WeatherInfo(weather = weatherInfoState.value)
+            WeatherInfo(weatherInfo = weatherInfoState.value)
             ActionButtons(
                 reloadClick = viewModel::reloadData,
                 nextClick = { },
@@ -76,8 +76,10 @@ fun HomeScreen(
 }
 
 @Composable
-fun WeatherInfo(weather: WeatherInfoState) {
-    val imageId = when (weather.weatherSuccess) {
+fun WeatherInfo(
+    weatherInfo: WeatherInfoState
+) {
+    val imageId = when (weatherInfo.weather) {
         stringResource(id = R.string.sunny) -> painterResource(id = R.drawable.sunny)
         stringResource(id = R.string.cloudy) -> painterResource(id = R.drawable.cloudy)
         stringResource(id = R.string.rainy) -> painterResource(id = R.drawable.rainy)
@@ -85,9 +87,14 @@ fun WeatherInfo(weather: WeatherInfoState) {
         else -> painterResource(id = R.drawable.ic_launcher_foreground)
     }
     Column {
+        Text(
+            text = weatherInfo.area,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
         Image(
             painter = imageId,
-            contentDescription = weather.weatherSuccess,
+            contentDescription = weatherInfo.weather,
             modifier = Modifier
                 .aspectRatio(1f / 1f)
         )
@@ -96,14 +103,16 @@ fun WeatherInfo(weather: WeatherInfoState) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                "text",
+                text = "${weatherInfo.minTemp} ℃",
                 textAlign = TextAlign.Center,
+                color = Color.Blue,
                 modifier = Modifier
                     .weight(1f)
             )
             Text(
-                "text",
+                text = "${weatherInfo.minTemp} ℃",
                 textAlign = TextAlign.Center,
+                color = Color.Red,
                 modifier = Modifier
                     .weight(1f)
             )
@@ -203,9 +212,16 @@ fun Loading(
 
 @Composable
 @Preview(showBackground = true)
-fun HomeScreenPreview() {
-    Box(Modifier.background(Color.White)) {
-        HomeScreen()
+fun WeatherInfoPreview() {
+    Box(Modifier.fillMaxSize().background(Color.White)) {
+        WeatherInfo(weatherInfo = WeatherInfoState(
+            weather = "sunny",
+            maxTemp = 100,
+            minTemp = 0,
+            area = "東京",
+            date = "2020"
+        )
+        )
     }
 }
 

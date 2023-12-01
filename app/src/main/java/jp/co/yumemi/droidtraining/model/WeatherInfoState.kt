@@ -1,11 +1,14 @@
 package jp.co.yumemi.droidtraining.model
 
-import java.io.Serializable
+import kotlinx.serialization.Serializable
 
 // savedStateHandleにそのまま保存するには, Serializable or Parcelize にする必要がある
+@Serializable
 data class WeatherInfoState(
-    val weatherSuccess: String = "",
-    val area: String = "",
-    val date: String = ""
-) : Serializable
+    val weather: String,
+    val maxTemp: Int,
+    val minTemp: Int,
+    val area: String,
+    val date: String
+)
 

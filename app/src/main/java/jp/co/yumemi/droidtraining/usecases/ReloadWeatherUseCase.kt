@@ -6,7 +6,7 @@ import javax.inject.Inject
 class ReloadWeatherUseCase @Inject constructor(
     private val weatherInfoRepository: WeatherInfoRepository
 ){
-    operator suspend fun invoke(onError: () -> Unit) {
-        return weatherInfoRepository.fetchWeatherApi(onError)
+    operator suspend fun invoke(jsonRequest: String, onError: () -> Unit) {
+        return weatherInfoRepository.fetchWeatherApi(jsonRequest, onError)
     }
 }
