@@ -17,7 +17,7 @@ class HomeScreenViewModel @Inject constructor(
     getWeatherUseCase: GetWeatherUseCase,
     private val reloadWeatherUseCase: ReloadWeatherUseCase
 ) : ViewModel() {
-    var weatherState = getWeatherUseCase()
+    var weatherInfoState = getWeatherUseCase()
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 

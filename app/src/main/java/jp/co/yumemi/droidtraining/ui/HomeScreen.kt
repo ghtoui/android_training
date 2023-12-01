@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import jp.co.yumemi.droidtraining.R
-import jp.co.yumemi.droidtraining.model.WeatherState
+import jp.co.yumemi.droidtraining.model.WeatherInfoState
 import jp.co.yumemi.droidtraining.viewmodels.HomeScreenViewModel
 
 @Composable
@@ -39,7 +39,7 @@ fun HomeScreen(
     viewModel: HomeScreenViewModel = viewModel()
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-    val uiState = viewModel.weatherState.collectAsState()
+    val weatherInfoState = viewModel.weatherInfoState.collectAsState()
     val isShowErrorDialog = viewModel.isShowErrorDialog.collectAsState()
     val isLoading = viewModel.isLoading.collectAsState()
 
@@ -54,7 +54,7 @@ fun HomeScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Spacer(modifier = Modifier.weight(1f))
-            WeatherInfo(weather = uiState.value)
+            WeatherInfo(weather = weatherInfoState.value)
             ActionButtons(
                 reloadClick = viewModel::reloadData,
                 nextClick = { },
@@ -76,7 +76,7 @@ fun HomeScreen(
 }
 
 @Composable
-fun WeatherInfo(weather: WeatherState) {
+fun WeatherInfo(weather: WeatherInfoState) {
     val imageId = when (weather.weatherSuccess) {
         stringResource(id = R.string.sunny) -> painterResource(id = R.drawable.sunny)
         stringResource(id = R.string.cloudy) -> painterResource(id = R.drawable.cloudy)
