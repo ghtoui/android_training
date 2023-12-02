@@ -19,12 +19,14 @@ interface WeatherInfoRepository {
 class WeatherInfoRepositoryImpl @Inject constructor(
     private val weatherInfoDataSource: WeatherInfoDataSource
 ) : WeatherInfoRepository {
-    private val _weatherInfoState: MutableStateFlow<WeatherInfoState> = MutableStateFlow(WeatherInfoState(
-        weather = WeatherType.Clear,
-        area = "",
-        minTemp = 0.0,
-        maxTemp = 0.0
-    ))
+    private val _weatherInfoState: MutableStateFlow<WeatherInfoState> = MutableStateFlow(
+        WeatherInfoState(
+            weather = WeatherType.Clear,
+            area = "",
+            minTemp = 0.0,
+            maxTemp = 0.0
+        )
+    )
     override val weatherInfoState = _weatherInfoState.asStateFlow()
 
     override var cityId: Int = City.getCityId()

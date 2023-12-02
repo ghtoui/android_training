@@ -7,7 +7,7 @@ import javax.inject.Inject
 
 class GetWeatherUseCase @Inject constructor(
     private val weatherInfo: WeatherInfoRepository
-){
+) {
     operator fun invoke(): StateFlow<WeatherInfoState> {
         return weatherInfo.weatherInfoState
     }
