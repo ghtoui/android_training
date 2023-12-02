@@ -10,11 +10,14 @@ import dagger.hilt.components.SingletonComponent
 import jp.co.yumemi.api.YumemiWeather
 import jp.co.yumemi.droidtraining.OpenWeatherAPIKey
 import jp.co.yumemi.droidtraining.datasources.WeatherInfoDataSource
+import jp.co.yumemi.droidtraining.model.CustomInterceptor
 import jp.co.yumemi.droidtraining.model.OpenWeatherService
 import jp.co.yumemi.droidtraining.repository.WeatherInfoRepository
 import jp.co.yumemi.droidtraining.repository.WeatherInfoRepositoryImpl
 import jp.co.yumemi.droidtraining.usecases.GetWeatherUseCase
 import jp.co.yumemi.droidtraining.usecases.ReloadWeatherUseCase
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import javax.inject.Singleton
@@ -30,6 +33,20 @@ object Modules {
 
     @Provides
     @Singleton
+    fun provideInterceptor(): OkHttpClient {
+        // log出力のためのインターセプターを追加
+        val logging = HttpLoggingInterceptor()
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY)
+        return OkHttpClient.Builder()
+            // カスタムしたインターセプターを追加
+            .addInterceptor(CustomInterceptor())
+            // log出力のためのインターセプターを追加
+            .addInterceptor(logging)
+            .build()
+    }
+
+    @Provides
+    @Singleton
     fun provideMoshi(): Moshi {
         return Moshi.Builder()
             .build()
@@ -37,10 +54,11 @@ object Modules {
 
     @Provides
     @Singleton
-    fun provideRetrofit(moshi: Moshi): Retrofit {
+    fun provideRetrofit(moshi: Moshi, okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
             .baseUrl(OpenWeatherAPIKey.getBaseUrl())
             .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .client(okHttpClient)
             .build()
     }
 
