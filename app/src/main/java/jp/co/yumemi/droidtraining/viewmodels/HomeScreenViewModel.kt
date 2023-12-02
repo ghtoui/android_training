@@ -2,6 +2,7 @@ package jp.co.yumemi.droidtraining.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.squareup.moshi.Json
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jp.co.yumemi.droidtraining.model.WeatherInfoState
 import jp.co.yumemi.droidtraining.usecases.GetWeatherUseCase
@@ -12,7 +13,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 @HiltViewModel

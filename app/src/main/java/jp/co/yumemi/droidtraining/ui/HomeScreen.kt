@@ -205,7 +205,7 @@ fun Loading(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            CircularProgressIndicator( )
+            CircularProgressIndicator()
         }
     }
 }
@@ -214,13 +214,14 @@ fun Loading(
 @Preview(showBackground = true)
 fun WeatherInfoPreview() {
     Box(Modifier.fillMaxSize().background(Color.White)) {
-        WeatherInfo(weatherInfo = WeatherInfoState(
-            weather = "sunny",
-            maxTemp = 100,
-            minTemp = 0,
-            area = "東京",
-            date = "2020"
-        )
+        WeatherInfo(
+            weatherInfo = WeatherInfoState(
+                weather = "sunny",
+                maxTemp = 100,
+                minTemp = 0,
+                area = "東京",
+                date = "2020"
+            )
         )
     }
 }
@@ -231,7 +232,8 @@ fun DialogPreview() {
     Box(
         Modifier
             .fillMaxSize()
-            .background(Color.White)) {
+            .background(Color.White)
+    ) {
         ShowErrorDialog(
             isShow = true,
             cancelClick = { /*TODO*/ },
