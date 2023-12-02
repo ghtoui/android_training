@@ -6,7 +6,7 @@ import javax.inject.Inject
 class NextWeatherInfoUseCase @Inject constructor(
     private val weatherInfoRepository: WeatherInfoRepository
 ) {
-    operator suspend fun invoke(onError: () -> Unit) {
+    suspend operator fun invoke(onError: () -> Unit) {
         weatherInfoRepository.nextCityId()
         return weatherInfoRepository.fetchWeatherApi(onError)
     }
