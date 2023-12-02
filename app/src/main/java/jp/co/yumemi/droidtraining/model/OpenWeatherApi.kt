@@ -8,8 +8,5 @@ interface OpenWeatherService {
     @GET("data/2.5/weather")
     suspend fun fetchWeatherInfo(
         @Query("id") cityId: Int,
-        @Query("appid") apiKey: String,
-        @Query("lang") langage: String,
-        @Query("units") unit: String
     ): Response<WeatherInfo>
 }
