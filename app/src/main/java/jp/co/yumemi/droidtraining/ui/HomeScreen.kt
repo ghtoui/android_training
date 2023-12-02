@@ -24,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -32,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import jp.co.yumemi.droidtraining.R
 import jp.co.yumemi.droidtraining.model.WeatherInfoState
+import jp.co.yumemi.droidtraining.model.WeatherType
 import jp.co.yumemi.droidtraining.viewmodels.HomeScreenViewModel
 
 @Composable
@@ -57,7 +57,7 @@ fun HomeScreen(
             WeatherInfo(weatherInfo = weatherInfoState.value)
             ActionButtons(
                 reloadClick = viewModel::reloadData,
-                nextClick = { },
+                nextClick = viewModel::nextData,
                 modifier = Modifier.weight(1f)
             )
         }
@@ -80,10 +80,10 @@ fun WeatherInfo(
     weatherInfo: WeatherInfoState
 ) {
     val imageId = when (weatherInfo.weather) {
-        stringResource(id = R.string.sunny) -> painterResource(id = R.drawable.sunny)
-        stringResource(id = R.string.cloudy) -> painterResource(id = R.drawable.cloudy)
-        stringResource(id = R.string.rainy) -> painterResource(id = R.drawable.rainy)
-        stringResource(id = R.string.snow) -> painterResource(id = R.drawable.snow)
+        WeatherType.Clear -> painterResource(id = R.drawable.sunny)
+        WeatherType.Clouds -> painterResource(id = R.drawable.cloudy)
+        WeatherType.Rain -> painterResource(id = R.drawable.rainy)
+        WeatherType.Snow -> painterResource(id = R.drawable.snow)
         else -> painterResource(id = R.drawable.ic_launcher_foreground)
     }
     Column {
@@ -94,7 +94,7 @@ fun WeatherInfo(
         )
         Image(
             painter = imageId,
-            contentDescription = weatherInfo.weather,
+            contentDescription = weatherInfo.weather.name,
             modifier = Modifier
                 .aspectRatio(1f / 1f)
         )
@@ -215,11 +215,10 @@ fun Loading(
 fun WeatherInfoPreview() {
     Box(Modifier.fillMaxSize().background(Color.White)) {
         WeatherInfo(weatherInfo = WeatherInfoState(
-            weather = "sunny",
-            maxTemp = 100,
-            minTemp = 0,
-            area = "東京",
-            date = "2020"
+            weather = WeatherType.Clear,
+            maxTemp = 100.0,
+            minTemp = 0.0,
+            area = "東京"
         )
         )
     }
