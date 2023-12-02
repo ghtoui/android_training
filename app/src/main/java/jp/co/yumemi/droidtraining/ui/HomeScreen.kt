@@ -14,30 +14,34 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import jp.co.yumemi.droidtraining.R
-import jp.co.yumemi.droidtraining.model.HomeScreenViewModel
-import jp.co.yumemi.droidtraining.model.WeatherState
+import jp.co.yumemi.droidtraining.model.WeatherInfoState
+import jp.co.yumemi.droidtraining.model.WeatherType
+import jp.co.yumemi.droidtraining.viewmodels.HomeScreenViewModel
 
 @Composable
 fun HomeScreen(
     viewModel: HomeScreenViewModel = viewModel()
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-    val uiState = viewModel.weatherState
+    val weatherInfoState = viewModel.weatherInfoState.collectAsState()
+    val isShowErrorDialog = viewModel.isShowErrorDialog.collectAsState()
+    val isLoading = viewModel.isLoading.collectAsState()
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -50,37 +54,47 @@ fun HomeScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Spacer(modifier = Modifier.weight(1f))
-            WeatherInfo(weather = uiState)
+            WeatherInfo(weatherInfo = weatherInfoState.value)
             ActionButtons(
                 reloadClick = viewModel::reloadData,
-                nextClick = { },
+                nextClick = viewModel::nextData,
                 modifier = Modifier.weight(1f)
             )
         }
     }
     ShowErrorDialog(
-        isShow = uiState.showErrorDialog,
+        isShow = isShowErrorDialog.value,
         cancelClick = viewModel::closeDialog,
         reloadClick = {
             viewModel.closeDialog()
             viewModel.reloadData()
         }
     )
+    Loading(
+        isLoading = isLoading.value
+    )
 }
 
 @Composable
-fun WeatherInfo(weather: WeatherState) {
-    val imageId = when (weather.weatherSuccess) {
-        stringResource(id = R.string.sunny) -> painterResource(id = R.drawable.sunny)
-        stringResource(id = R.string.cloudy) -> painterResource(id = R.drawable.cloudy)
-        stringResource(id = R.string.rainy) -> painterResource(id = R.drawable.rainy)
-        stringResource(id = R.string.snow) -> painterResource(id = R.drawable.snow)
+fun WeatherInfo(
+    weatherInfo: WeatherInfoState
+) {
+    val imageId = when (weatherInfo.weather) {
+        WeatherType.Clear -> painterResource(id = R.drawable.sunny)
+        WeatherType.Clouds -> painterResource(id = R.drawable.cloudy)
+        WeatherType.Rain -> painterResource(id = R.drawable.rainy)
+        WeatherType.Snow -> painterResource(id = R.drawable.snow)
         else -> painterResource(id = R.drawable.ic_launcher_foreground)
     }
     Column {
+        Text(
+            text = weatherInfo.area,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
         Image(
             painter = imageId,
-            contentDescription = weather.weatherSuccess,
+            contentDescription = weatherInfo.weather.name,
             modifier = Modifier
                 .aspectRatio(1f / 1f)
         )
@@ -89,14 +103,16 @@ fun WeatherInfo(weather: WeatherState) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                "text",
+                text = "${weatherInfo.minTemp} ℃",
                 textAlign = TextAlign.Center,
+                color = Color.Blue,
                 modifier = Modifier
                     .weight(1f)
             )
             Text(
-                "text",
+                text = "${weatherInfo.minTemp} ℃",
                 textAlign = TextAlign.Center,
+                color = Color.Red,
                 modifier = Modifier
                     .weight(1f)
             )
@@ -181,17 +197,42 @@ fun ShowErrorDialog(
 }
 
 @Composable
+fun Loading(
+    isLoading: Boolean
+) {
+    if (isLoading) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
+    }
+}
+
+@Composable
 @Preview(showBackground = true)
-fun HomeScreenPreview() {
-    Box(Modifier.background(Color.White)) {
-        HomeScreen()
+fun WeatherInfoPreview() {
+    Box(Modifier.fillMaxSize().background(Color.White)) {
+        WeatherInfo(
+            weatherInfo = WeatherInfoState(
+                weather = WeatherType.Clear,
+                maxTemp = 100.0,
+                minTemp = 0.0,
+                area = "東京"
+            )
+        )
     }
 }
 
 @Composable
 @Preview(showBackground = true)
 fun DialogPreview() {
-    Box(Modifier.fillMaxSize().background(Color.White)) {
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(Color.White)
+    ) {
         ShowErrorDialog(
             isShow = true,
             cancelClick = { /*TODO*/ },
@@ -202,12 +243,6 @@ fun DialogPreview() {
 
 @Composable
 @Preview(showBackground = true)
-fun ReloadButtonPreview() {
-    Box(Modifier.background(Color.White)) {
-        ActionButtons(
-            reloadClick = { },
-            nextClick = { },
-            modifier = Modifier
-        )
-    }
+fun LoadingPreview() {
+    Loading(isLoading = true)
 }
