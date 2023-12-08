@@ -260,4 +260,4 @@ fabric.properties
 
 !/gradle/wrapper/gradle-wrapper.jar
 
-OpenWeatherAPIKey.*
+OpenWeatherApiKey.kt
